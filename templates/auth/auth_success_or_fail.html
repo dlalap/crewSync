@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% block content %} {% if authresult == 'success' %}
+<p>
+  Account authentication success!
+</p>
+{% else %}
+<p>
+  Authentication fail.
+</p>
+{% endif %} {% endblock content %}
