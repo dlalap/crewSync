@@ -76,6 +76,9 @@ TEMPLATES = [
     },
 ]
 
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
 WSGI_APPLICATION = 'crewSync.wsgi.application'
 ASGI_APPLICATION = "crewSync.routing.application"
 CHANNEL_LAYERS = {

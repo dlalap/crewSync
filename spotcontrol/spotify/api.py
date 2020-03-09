@@ -20,7 +20,7 @@ scope = '''\
     streaming \
     '''
 
-scope = 'streaming'
+# scope = 'streaming'
 
 req = ( 
     f'{base}?client_id={client_id}'

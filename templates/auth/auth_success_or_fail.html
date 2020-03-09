@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %} {% if authresult == 'success' %}
 <p>
-  Account authentication success!
+  Account authentication success! <a href="{% url 'home' %}">Return to home.</a>
 </p>
 {% else %}
 <p>
