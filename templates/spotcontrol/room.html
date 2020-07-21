@@ -1,0 +1,324 @@
+{% extends 'base.html' %} {% block content %}
+
+<head>
+    <meta charset="utf-8" />
+    <title>Control Room</title>
+    <style>
+        .btn-circle.btn-xl {
+            width: 70px;
+            height: 70px;
+            padding: 10px 16px;
+            border-radius: 35px;
+            font-size: 1.6em;
+            text-align: center;
+        }
+    </style>
+</head>
+<script>
+    var roomName = '{{ room_name|escapejs }}';
+    console.log(roomName);
+    console.log(window.location.host);
+    var chatSocket = new WebSocket(
+        'wss://' + window.location.host + '/ws/spotcontrol/' + roomName + '/',
+    );
+    //   var chatSocket = new WebSocket(
+    //     'ws://429716f2.ngrok.io/ws/spotcontrol/' + roomName + '/',
+    //   );
+
+    chatSocket.onmessage = function (e) {
+        var data = JSON.parse(e.data);
+        var control = data['control'];
+        var auth = data['auth_token'];
+        var targetTime = data['targetTime'];
+        var mostRecentDevice = data['most_recent_device'];
+        // var url = data['url'];
+        console.log(`control: ${control}`);
+        console.log(`targetTime: ${targetTime}`);
+        // console.log(`url: ${url}`);
+        document.querySelector('#control-log').value += control + '\n';
+
+        var controlToSend = control.toLowerCase();
+
+        // if (controlToSend === 'play') {
+        //   sendControlToSpotify(auth, 'seek?position_ms=0');
+        // }
+
+        try {
+            if (controlToSend === 'reset') {
+                sendControlToSpotify(auth, 'seek?position_ms=0');
+            } else if (controlToSend == 'log_device') {
+                getCurrentDevices(auth);
+            } else if (controlToSend == 'play_my_song') {
+                console.log('PLAY MY SONG!!!!!');
+            } else {
+                sendControlToSpotify(auth, controlToSend, mostRecentDevice);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        // setTimeout(() => {
+        //   sendControlToSpotify(auth, controlToSend);
+        // }, getMsUntilTargetTime(targetTime));
+
+        // var url = `https://api.spotify.com/v1/me/player/${controlToSend}`;
+        // var headers = {
+        //   Authorization: `Bearer ${auth}`,
+        // };
+        // fetch(url, {
+        //   method: 'PUT',
+        //   headers: headers,
+        // }).then((res) => console.log(res));
+    };
+
+    const sendControlToSpotify = (auth, controlToSend, mostRecentDevice = null) => {
+        var url = `https://api.spotify.com/v1/me/player/${controlToSend}`;
+        var headers = {
+            Authorization: `Bearer ${auth}`,
+        };
+        var params = {};
+        console.log(
+            `sending control ${controlToSend} with mostRecentDevice ${mostRecentDevice}`,
+        );
+        console.log(`auth ${auth}`);
+        console.log(`${JSON.stringify(params)}`);
+        if (mostRecentDevice != null) {
+            url = url + '?device_id=' + mostRecentDevice;
+        }
+        let methodUsed;
+        if (controlToSend === 'previous' || controlToSend === 'next') {
+            methodUsed = 'POST';
+        } else {
+            methodUsed = 'PUT';
+        }
+        fetch(url, {
+            method: methodUsed,
+            headers: headers,
+        }).then((res) => console.log(res));
+    };
+
+    const getCurrentDevices = (auth) => {
+        // var url = `https://api.spotify.com/v1/me/player/devices`;
+        var url = `{% url 'log_playback_device' %}`;
+        var headers = {
+            Authorization: `Bearer ${auth}`,
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        };
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+        }).then((res) => console.log(res));
+    };
+
+    const getMsUntilTargetTime = (targetTime) => {
+        let elapsed = new Date(targetTime) - new Date();
+        console.log(`elapsed time: ${elapsed}`);
+        return elapsed;
+    };
+
+    const targetTimeToSend = (sec) => {
+        let timeObject = new Date();
+        let coeff = 1000;
+        let rounded = new Date(
+            Math.ceil(timeObject.getTime() / coeff) * coeff + sec * coeff,
+        );
+        return rounded;
+    };
+
+    const refreshToken = () => {
+        console.log('calling refreshToken')
+        let url = `{% url 'refresh_spotify' %}`;
+        let newToken;
+        headers = {
+            'X-CSRFToken': getCookie('csrftoken'),
+        };
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+        }).then((res) => {
+            newToken = res.text();
+        });
+        return newToken;
+    };
+
+    const getToken = () => {
+        let auth_url = `{% url 'get_auth_token' %}`;
+        headers = {
+            'X-CSRFToken': getCookie('csrftoken'),
+        };
+        return fetch(auth_url, {
+            method: 'POST',
+            headers: headers,
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                return data;
+            })
+            .catch(() => {
+                console.log('ERROR!');
+                return 'No token';
+            });
+    };
+
+    const getCurrentSong = () => {
+        var playerUrl = 'https://api.spotify.com/v1/me/player/';
+        getToken()
+            .then((data) => data['Data']['token'])
+            .then((token) => {
+                let headers = {
+                    Authorization: `Bearer ${token}`,
+                };
+                fetch(playerUrl, {
+                    method: 'GET',
+                    headers: headers,
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data) {
+                            console.log(data.device.name);
+                            document.getElementById('current-device').innerHTML =
+                                data.device.name;
+                            console.log(data.item.name);
+                            document.getElementById('current-song').innerHTML =
+                                data.item.name;
+                            console.log(data?.context?.type);
+                        } else {
+                            console.log('Could not get playback data.');
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('Something wrong happened!');
+                        if (err.name == 'SyntaxError') {
+                            console.log('Could not detect playback.');
+                        } else {
+                            console.log(`error: ${err}`);
+                            throw err;
+                        }
+                    });
+            });
+    };
+
+    const getCurrentSongAndPlaylist = () => {
+        let song = getCurrentSong();
+        return new Array('song', 'playlist');
+    };
+
+    const playMySong = async () => {
+        let rToken = refreshToken();
+        console.log(`rToken: ${rToken}`);
+        // let [song, playlist] = getCurrentSongAndPlaylist();
+        chatSocket.send(
+            JSON.stringify({
+                control: 'PLAY_MY_SONG',
+            }),
+        );
+    };
+
+    function getCookie(c_name) {
+        if (document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + '=');
+            if (c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(';', c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start, c_end));
+            }
+        }
+        return '';
+    }
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+</script>
+
+<body>
+    <div class="text-center">
+        <a>Current song playing: <span id="current-song">This song</span></a><br />
+        <a>Device: <span id="current-device">iPhone.</span></a><br />
+        <input id="refresh-token" type="button" value="Refresh Token" /><br />
+        <input id="get-current-devices" type="button" value="Log Current Device" /><br />
+        <input id="play-my-song" type="button" value="Play My Song" /><br />
+        <button onclick="getCurrentSong()" type="button">Get my song</button><br />
+        <textarea id="control-log" cols="100" rows="3"></textarea><br />
+        <div class="controls">
+            <button class="glyphicon glyphicon-fast-backward btn-circle btn-xl" id="sync-previous" type="button"
+                value="Previous"></button>
+
+            <button class="glyphicon glyphicon-refresh btn-circle btn-xl" id="sync-reset" type="button"
+                value="Reset"></button>
+
+            <button class="glyphicon glyphicon-play btn-circle btn-xl" id="sync-play" type="button"
+                value="Play"></button>
+
+            <button class="glyphicon glyphicon-pause btn-circle btn-xl" id="sync-pause" type="button"
+                value="Pause"></button>
+
+            <button class="glyphicon glyphicon-fast-forward btn-circle btn-xl" id="sync-next" type="button"
+                value="Next"></button>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.querySelector('#sync-previous').onclick = function (e) {
+        console.log('PREV');
+        chatSocket.send(
+            JSON.stringify({
+                control: 'PREVIOUS',
+                targetTime: targetTimeToSend(1),
+            }),
+        );
+    };
+    document.querySelector('#sync-reset').onclick = function (e) {
+        console.log('RESET');
+        chatSocket.send(
+            JSON.stringify({
+                control: 'RESET',
+                targetTime: targetTimeToSend(1),
+            }),
+        );
+    };
+    document.querySelector('#sync-pause').onclick = function (e) {
+        console.log('PAUSE');
+        chatSocket.send(
+            JSON.stringify({
+                control: 'PAUSE',
+                targetTime: targetTimeToSend(1),
+            }),
+        );
+    };
+    document.querySelector('#sync-play').onclick = function (e) {
+        console.log('PLAY');
+        chatSocket.send(
+            JSON.stringify({
+                control: 'PLAY',
+                targetTime: targetTimeToSend(1),
+            }),
+        );
+    };
+    document.querySelector('#sync-next').onclick = function (e) {
+        console.log('NEXT');
+        chatSocket.send(
+            JSON.stringify({
+                control: 'NEXT',
+                targetTime: targetTimeToSend(1),
+            }),
+        );
+    };
+    document.querySelector('#refresh-token').onclick = function (e) {
+        refreshToken();
+    };
+    document.querySelector('#get-current-devices').onclick = function (e) {
+        chatSocket.send(
+            JSON.stringify({
+                control: 'LOG_DEVICE',
+            }),
+        );
+    };
+    document.querySelector('#play-my-song').onclick = function (e) {
+        playMySong();
+    };
+</script>
+
+{% endblock %}

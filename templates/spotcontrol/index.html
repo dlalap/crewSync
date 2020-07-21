@@ -1,0 +1,38 @@
+{% extends 'base.html' %} {% block content %}
+<head>
+  <meta charset="utf-8" />
+  <title>Chat Rooms</title>
+</head>
+<body>
+  What music crew would you like to join?<br />
+  <input id="room-name-input" type="text" size="100" /><br />
+  <input id="room-name-submit" type="button" value="Enter" /><br /><br />
+  <input id="room-create-new" type="button" value="Create New Room"/>
+  <input id="room-join" type="button" value="Join Existing Room"/>
+  <input id="room-join-recent" type="button" value="Re-join Recent Room"/><br />
+  <script>
+    document.querySelector('#room-name-input').focus();
+    document.querySelector('#room-name-input').onkeyup = function(e) {
+      if (e.keyCode === 13) {
+        // enter, return
+        document.querySelector('#room-name-submit').click();
+      }
+    };
+
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    document.querySelector('#room-name-submit').onclick = function(e) {
+        var existingRoomId = document.querySelector('#room-name-input').value;
+        // IF existingRoomId is valid and in our current running database then let user into that room. Else reject.
+        // Let's make user generate rooms for now.
+        roomId = uuidv4();
+        window.location.pathname = '/control/' + roomId + '/';
+    };
+  </script>
+</body>
+{% endblock %}
