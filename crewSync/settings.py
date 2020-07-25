@@ -100,8 +100,9 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': 'crewsync',
         'USER': 'root',
-        'PASSWORD': 'typo821(rose',
-        'HOST': 'localhost',
+        'PASSWORD': os.getenv('DB_PW'),
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {
             'NAME': 'crewsync_test',
