@@ -10,9 +10,6 @@ import datetime as dt
 
 class SpotifyConsumer(AsyncWebsocketConsumer):
 
-    def __init__(self):
-        print("Initializing SpotifyConsumer class.")
-
     async def connect(self):
         print(f'SpotifyConsumer.scope = {self.scope}')
         self.crew_id = self.scope['url_route']['kwargs']['room_name']
