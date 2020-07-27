@@ -3,21 +3,15 @@
 <html>
   <body>
     {% if user.is_authenticated %}
-    <a href="{% url 'logout' %}">Logout</a>
-    {% else %}
-    <a href="{% url 'login' %}">Login</a>
-    {% endif %}
-    <a href="{% url 'signup' %}">Signup</a>
-    <br />
-    {% if user.is_authenticated %}
-    <p>You are logged in as {{user}}.</p>
+    <p>Hello, {{user}}.</p>
     {% if token == '0' %}
     <a href="{% url 'connect_spotify' %}">Connect your Spotify account.</a>
     {% else %}
-    <a href="">Go to the controls.</a>
-    <br />
-    <a href="{% url 'refresh_spotify' %}">Refresh my token.</a>
-    {% endif %} {% endif %}
+    <a href="{% url 'control' %}">Go to the controls.</a>
+    {% endif %}
+    {% else %}
+    <p>Hey there! Welcome to my application.</p>
+    <p>You'll need to <a href="{% url 'login' %}">log in!</a></p> {% endif %}
   </body>
 </html>
 

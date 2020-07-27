@@ -1,0 +1,13 @@
+Customer journey (and as a result, tests to write)
+
+1. User registers for an account.
+    EXPECTED RESULT: User is logged in.
+
+2. User logs out.
+    EXPECTED RESULT: User is not logged in.
+
+3. User logs in.
+    EXPECTED RESULT: User is logged in.
+
+4. User connects their Spotify account.
+    EXPECTED RESULT: Spotify returns SUCCESS.
