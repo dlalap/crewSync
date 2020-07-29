@@ -106,13 +106,12 @@ CHANNEL_LAYERS = {
 CSRF_COOKIE_SECURE = False
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'crewsync',
-        'USER': 'root',
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PW'),
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'HOST': os.getenv('HOST'),
+        'PORT': os.getenv('DB_PORT'),
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {
             'NAME': 'crewsync_test',
