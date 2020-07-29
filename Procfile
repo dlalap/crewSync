@@ -1,0 +1,1 @@
+web: gunicorn crewSync.config.settings.wsgi
