@@ -3,7 +3,7 @@
 ## TODOs
 
 - [ ] New name
-- [ ] Database setup
+- [ ] Heroku database setup
 - [ ] Write tests
 - [ ] Add song sync
 - [ ] Add playlist sync
