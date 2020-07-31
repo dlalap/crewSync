@@ -1,5 +1,7 @@
 # crewSync
 
+An attempt to synchronize playback between Spotify users.
+
 ## TODOs
 
 - [ ] New name
