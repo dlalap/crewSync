@@ -16,11 +16,12 @@
 </head>
 <script>
     var roomName = '{{ room_name|escapejs }}';
-    var redis = '{{ redis_name|escapejs }}';
+    var redis = '{{ redis_name|escapejs }}'.replace(/^redis/, 'ws');
     console.log(roomName);
     console.log(window.location.host);
+    console.log(`redis: ${redis}`)
     var chatSocket = new WebSocket(
-        'wss://' + redis ? redis : window.location.host + '/ws/spotcontrol/' + roomName + '/',
+        'wss://' + (redis !== "None" ? redis : window.location.host) + '/ws/spotcontrol/' + roomName + '/',
     );
     //   var chatSocket = new WebSocket(
     //     'ws://429716f2.ngrok.io/ws/spotcontrol/' + roomName + '/',
