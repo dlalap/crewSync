@@ -16,7 +16,7 @@
 </head>
 <script>
     var roomName = '{{ room_name|escapejs }}';
-    var redis = '{{ redis_name|escapejs }}'.replace(/^redis/, '');
+    var redis = '{{ redis_name|escapejs }}'.replace('redis://', '');
     console.log(roomName);
     console.log(window.location.host);
     console.log(`redis: ${redis}`)
