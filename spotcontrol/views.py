@@ -54,7 +54,7 @@ def connect_spotify(request):
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     response_type = 'code'
     # redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
-    redirect_uri = f'https://{settings.CURRENT_NGROK}/redir_uri/'
+    redirect_uri = f'https://{settings.CURRENT_WEBPORT}/redir_uri/'
     state = uuid.uuid4()
     scope = '''\
         user-modify-playback-state \
@@ -90,7 +90,7 @@ def auth_spotify(request):
     endpoint = 'https://accounts.spotify.com/api/token'
     grant_type = 'authorization_code'
     # redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
-    redirect_uri = f'https://{settings.CURRENT_NGROK}/redir_uri/'
+    redirect_uri = f'https://{settings.CURRENT_WEBPORT}/redir_uri/'
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
     contentType = "application/x-www-form-urlencoded"
