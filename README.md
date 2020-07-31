@@ -3,8 +3,9 @@
 ## TODOs
 
 - [ ] New name
-- [ ] Heroku database setup
-- [ ] Setup spotify developer redir_uri with Heroku
+- [x] Heroku database setup
+- [x] Setup spotify developer redir_uri with Heroku
+- [ ] Fix websockets at frontend on Heroku
 - [ ] Write tests
 - [ ] Add song sync
 - [ ] Add playlist sync
