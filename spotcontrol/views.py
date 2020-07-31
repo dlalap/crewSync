@@ -46,6 +46,7 @@ def room(request, crew_id=None):
 
     return render(request, 'spotcontrol/room.html', {
       'room_name': crew_id,
+      'redis_name': os.environ.get('REDIS_URL')
     })
 
 
