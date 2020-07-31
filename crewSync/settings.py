@@ -116,7 +116,7 @@ DATABASES = {
         'TEST': {
             'NAME': 'crewsync_test',
             'USER': 'root',
-            'PASSWORD': 'typo821(rose',
+            'PASSWORD': os.getenv('DB_TESTPW'),
             'HOST': 'localhost',
             'OPTIONS': {'charset': 'utf8mb4'},
         }
